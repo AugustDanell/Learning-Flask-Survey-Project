@@ -1,6 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+import matplotlib
 app = Flask(__name__)
 happiness_list = []
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
+db = SQLAlchemy(app)
+
+class users(db.Model):
+    _id = db.Column("id", db.Integer, primary_key = True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+    has_left_review = db.Column(db.Boolean())
+
+    def __init__(self, name, email, review):
+        self.name = name
+        self.email = email
+        self.review = review
 
 def calculate_data():
     global happiness_list
@@ -27,9 +43,9 @@ def home():
     else:
         return render_template("home.html", avg=average_happiness, high=high, low = low)
 
-@app.route("/<name>")
-def name(name):
-    return render_template("index.html", user =name)
+@app.route("/stats")
+def name():
+    return render_template("stats.html")
 
 @app.route("/survey", methods=["POST", "GET"])
 def survey():
