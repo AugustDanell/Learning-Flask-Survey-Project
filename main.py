@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import matplotlib
+from datetime import date
 app = Flask(__name__)
 happiness_list = []
 
@@ -18,6 +19,29 @@ class users(db.Model):
         self.email = email
         self.review = review
 
+def update_files():
+    filename = "employer_happiness.txt"
+    today = str(date.today())
+    fin = open("employer_happiness", "rt")
+    fout = open("employer_happiness", "wt")
+
+    sum = 0
+    for i in happiness_list:
+        sum += i
+
+    message = today + " Total happiness: %d"%(sum) + " of people voting: %d" %(len(happiness_list))
+    found_match = False
+    for line in fin:
+        if (today in line):
+            found_match = True
+            fout.write(message)
+
+    if(not found_match):
+        fout.write(message)
+
+    fin.close()
+    fout.close()
+
 def calculate_data():
     global happiness_list
     highest = 0
@@ -33,6 +57,8 @@ def calculate_data():
 
     if(happiness_list == []):
         return "No Data",-1,-1
+
+    update_files()
     return (sum/len(happiness_list)), highest, lowest
 
 @app.route("/")
@@ -45,6 +71,14 @@ def home():
 
 @app.route("/stats")
 def name():
+    '''
+    x_coordinates = []
+    diagram_height = []
+    plot.bar(x_coordinates, diagram_height, width=0.5)
+    title = "Utfall baserat på tre kunder" % (dimension, dimension, scenario)
+    plot.title(title)
+    plot.savefig("plot.pdf")
+    '''
     return render_template("stats.html")
 
 @app.route("/survey", methods=["POST", "GET"])
