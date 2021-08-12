@@ -22,7 +22,7 @@ class users(db.Model):
 def update_files():
     filename = "employer_happiness.txt"
     today = str(date.today())
-    fin = open("employer_happiness", "rt")
+    fin = open("employer_happiness", "r")
     fout = open("employer_happiness", "wt")
 
     sum = 0
@@ -32,11 +32,20 @@ def update_files():
     message = today + " Total happiness: %d"%(sum) + " of people voting: %d" %(len(happiness_list))
     found_match = False
     for line in fin:
+        print("today:", today, "line:", line)
         if (today in line):
+            # Extract previous data:
+            split = line.split()
+            prev_total = int(split[3])
+            prev_num = int(split[7])
+
+            # Append it to new data:
             found_match = True
+            message = today + " Total happiness: %d"%(sum+prev_total) + " of people voting: %d" %(len(happiness_list) + prev_num)
             fout.write(message)
 
     if(not found_match):
+        print("Yo")
         fout.write(message)
 
     fin.close()
